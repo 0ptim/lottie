@@ -16,6 +16,11 @@ verify the result.
 
 ## Setting up the project
 
+The deliverable is not just `public/lottie.json`: the viewer should be set up
+and the animation should be previewable in the browser. If the player project is
+missing, create it; if it exists, install/update dependencies as needed, start
+the dev server, and open the local preview URL for verification.
+
 If you don't already have the player project on this machine, scaffold a fresh
 copy with **degit**:
 
@@ -243,3 +248,6 @@ generic 0–100 range. Like `lottie.json`, it hot-reloads on save.
 5. Keyframe `s` values are arrays; loops repeat the first value at the end.
 6. If the dev server is running, just save — it hot-reloads. Otherwise start it
    with `npm run dev`. A blank canvas (no error) → re-check the group wrapping.
+7. The player is running and the preview URL has been opened or reported. When a
+   browser tool is available, verify the page shows a nonblank rendered
+   animation before finalizing.
