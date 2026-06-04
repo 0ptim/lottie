@@ -4,6 +4,7 @@ import { PlaybackControls } from "@/components/PlaybackControls";
 import { PropertiesPanel, type ControlMeta } from "@/components/PropertiesPanel";
 import { ZoomControls } from "@/components/ZoomControls";
 import { LottiePlayer, type AnimationSlot } from "@/lib/lottie-player";
+import { installRemote, removeRemote } from "@/lib/remote";
 
 // The Lottie file lives in /public and is fetched at startup.
 const LOTTIE_URL = "/lottie.json";
@@ -104,6 +105,7 @@ export default function App() {
         setFps(player.getFps());
         setSlots(player.getSlots());
         setControlsMeta(meta);
+        installRemote(player);
         player.play();
       } catch (e) {
         if (!disposed) setError(e instanceof Error ? e.message : String(e));
@@ -116,6 +118,7 @@ export default function App() {
     return () => {
       disposed = true;
       observer.disconnect();
+      removeRemote();
       playerRef.current?.dispose();
       playerRef.current = null;
     };

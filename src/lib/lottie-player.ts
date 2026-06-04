@@ -97,6 +97,11 @@ export class LottiePlayer {
     return this.totalFrames;
   }
 
+  /** The current playhead position, in frames (may be fractional while playing). */
+  getCurrentFrame(): number {
+    return this.currentFrame;
+  }
+
   getZoom(): number {
     return this.camera.zoom;
   }
