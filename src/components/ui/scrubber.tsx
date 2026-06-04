@@ -227,7 +227,7 @@ export function Scrubber({
         </div>
 
         {/* Label */}
-        <div className="pointer-events-none absolute text-xs z-10 top-1/2 left-[12px] -translate-y-1/2 whitespace-nowrap text-foreground">
+        <div className="pointer-events-none absolute text-xs z-10 top-1/2 left-[12px] -translate-y-1/2 whitespace-nowrap text-muted-foreground">
           {label}
         </div>
 
