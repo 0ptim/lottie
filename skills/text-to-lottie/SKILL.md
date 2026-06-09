@@ -36,19 +36,74 @@ npm install   # postinstall copies the CanvasKit wasm into /public
 npm run dev
 ```
 
-Then open the printed local URL. If you already have the project, just
-`npm install && npm run dev`.
+Then open the printed local URL. In this repository, prefer Bun:
+
+```bash
+bun install   # runs postinstall and copies CanvasKit wasm into /public
+bun run dev
+```
+
+If the user says the dev server is already running, do not restart it. First
+check the known local URL:
+
+```bash
+curl http://localhost:5173/
+```
+
+If that responds, keep using the existing server.
 
 ## Where to write the file (and how it loads)
 
 - Write the animation JSON to **`public/lottie.json`**. That is the only file
   you need to touch to change what the app shows — [`src/App.tsx`](../../../src/App.tsx)
   fetches `/lottie.json` at startup.
-- With the dev server running (`npm run dev`), a Vite plugin watches that file
+- With the dev server running (`bun run dev`), a Vite plugin watches that file
   and **full-reloads the page on save**, so your edit appears immediately. No
   other wiring is required.
 - If parsing fails, the app shows the error on screen ("CanvasKit could not
   parse the Lottie file.").
+
+## Fast visual feedback loop
+
+Use the headless renderer for the tight iteration loop. It runs Skottie's
+CanvasKit renderer directly in Bun, writes a PNG, and prints render stats. This
+is faster and more deterministic than driving the browser for every change.
+
+```bash
+bun run render:frame --frame 0
+bun run render:frame --frame 45 --out tmp/frame-045.png
+bun run render:frame --frame 89 --out tmp/frame-089.png
+```
+
+Then inspect the generated PNGs with the available local image viewer. Render
+at least the first frame, a middle/extreme-action frame, and the last visible
+frame (`op - 1`). For short loops, also render any contact, anticipation,
+overshoot, or reveal frames that matter to the request.
+
+The command prints JSON like:
+
+```json
+{
+  "output": "tmp/frame-045.png",
+  "frame": 45,
+  "width": 512,
+  "height": 512,
+  "pngBytes": 5187,
+  "alphaPixels": 262144,
+  "uniqueColors": 257
+}
+```
+
+Use this as a quick health check:
+- A thrown `CanvasKit could not parse ...` error means the Lottie JSON is not
+  Skottie-renderable.
+- `alphaPixels: 0` means the frame is fully transparent.
+- `uniqueColors: 1` can be valid for a plain background frame, but it is a red
+  flag when visible artwork should be present.
+- Output belongs in `tmp/`; it is git-ignored and safe for repeated previews.
+
+Only use the browser for live playback, properties-panel testing, final visual
+confirmation, or when the headless PNG suggests a problem that needs UI context.
 
 ## Required top-level shape
 
@@ -302,10 +357,17 @@ browser tool can target it directly for screenshots. If the canvas is blank,
 the page hasn't finished loading or the Lottie failed to parse (check the
 on-screen error).
 
+Use the browser after the headless render loop, not instead of it. In Codex,
+prefer the in-app Browser plugin when available: navigate directly to
+`http://localhost:5173/?frame=N&paused=1`, wait for the canvas with
+`data-testid="lottie-canvas"`, and screenshot that canvas/viewport. If the
+browser tooling is unavailable, the `bun run render:frame ...` PNGs are still
+valid visual feedback because they use the same CanvasKit Skottie engine.
+
 ## Before you finish — checklist
 
 1. The file is valid JSON (no comments, no trailing commas). Validate with
-   `node -e "JSON.parse(require('fs').readFileSync('public/lottie.json','utf8'))"`.
+   `bun -e "JSON.parse(await Bun.file('public/lottie.json').text())"`.
 2. Every shape primitive/fill is inside a `"ty": "gr"` group's `it` array, and
    each group ends with a `"tr"` transform.
 3. Top-level `op` and each layer's `op` cover the frames you animate.
@@ -316,10 +378,13 @@ on-screen error).
    `controls.json` label.
 7. The project is the official GitHub player (scaffolded via degit), not a
    custom/hand-rolled viewer.
-8. If the dev server is running, just save — it hot-reloads. Otherwise start it
-   with `npm run dev`. A blank canvas (no error) → re-check the group wrapping.
-9. The player is running and the preview URL has been opened or reported. When a
-   browser tool is available, verify the page shows a nonblank rendered
-   animation before finalizing — pin a key frame via the URL (see "Controlling
-   playback from a browser agent"), e.g. open `?frame=60&paused=1` and
-   screenshot, rather than dragging the on-screen slider.
+8. Render deterministic PNG previews with `bun run render:frame` for the first,
+   middle/key, and last visible frames. Inspect the images and the printed
+   `alphaPixels`/`uniqueColors` stats before using the browser.
+9. If the dev server is running, just save — it hot-reloads. Otherwise start it
+   with `bun run dev`. A blank canvas (no error) → re-check the group wrapping.
+10. The player is running and the preview URL has been opened or reported. When
+    a browser tool is available, verify the page shows a nonblank rendered
+    animation before finalizing — pin a key frame via the URL (see "Controlling
+    playback from a browser agent"), e.g. open `?frame=60&paused=1` and
+    screenshot, rather than dragging the on-screen slider.
