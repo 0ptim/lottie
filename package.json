@@ -5,10 +5,11 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "postinstall": "node scripts/copy-canvaskit.mjs"
+    "dev": "bun node_modules/vite/bin/vite.js",
+    "build": "bun node_modules/typescript/bin/tsc -b && bun node_modules/vite/bin/vite.js build",
+    "preview": "bun node_modules/vite/bin/vite.js preview",
+    "render:frame": "bun scripts/render-lottie-frame.mjs",
+    "postinstall": "bun scripts/copy-canvaskit.mjs"
   },
   "dependencies": {
     "canvaskit-wasm": "^0.39.1",

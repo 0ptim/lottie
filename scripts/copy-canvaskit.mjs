@@ -1,5 +1,5 @@
 // Copies the CanvasKit wasm binary into /public so Vite serves it at /canvaskit.wasm.
-// Runs on postinstall; safe to run manually: `node scripts/copy-canvaskit.mjs`.
+// Runs on postinstall; safe to run manually: `bun scripts/copy-canvaskit.mjs`.
 import { copyFile, mkdir } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

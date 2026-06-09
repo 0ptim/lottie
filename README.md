@@ -19,8 +19,8 @@ Then ask claude code/codex or any other agent supporting skills to generate an a
 Alternatively you can set up the repository manually
 
 ```bash
-npm install   # also copies the CanvasKit wasm into /public (postinstall)
-npm run dev
+bun install   # also copies the CanvasKit wasm into /public (postinstall)
+bun run dev
 ```
 
 Then open the printed local URL.
@@ -30,4 +30,4 @@ Then open the printed local URL.
 The wasm binary is **not** committed; it is copied from
 `node_modules/canvaskit-wasm/bin/full/canvaskit.wasm` into `public/` by
 [`scripts/copy-canvaskit.mjs`](scripts/copy-canvaskit.mjs) on `postinstall`. Run
-it manually any time with `node scripts/copy-canvaskit.mjs`.
+it manually any time with `bun scripts/copy-canvaskit.mjs`.
